@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id ("kotlin-kapt")
+    alias(libs.plugins.dagger)
 }
 
 android {
@@ -52,4 +54,13 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.gson)
     implementation(libs.squareup.retrofit2)
+    implementation(libs.hilt)
+    kapt(libs.hiltCompiler)
+    implementation(libs.roomRuntime)
+    implementation(libs.roomKtx)
+    kapt(libs.roomCompiler)
+}
+
+kapt {
+    correctErrorTypes = true
 }

@@ -5,16 +5,28 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.myapplication.data.BankDTO
-import com.example.myapplication.data.CardDTO
-import com.example.myapplication.data.CountryCardDTO
-import com.example.myapplication.data.NumberCardDTO
+import android.widget.Toast
+import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.example.myapplication.data.model.CardDTO
 import com.example.myapplication.databinding.FragmentSearchBinding
+import com.example.myapplication.entity.StateType
+import com.example.myapplication.presenter.MainViewModelFactory
+import com.example.myapplication.presenter.viewmodel.SearchViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SearchFragment : Fragment() {
     private var _binding: FragmentSearchBinding? = null
     private val binding: FragmentSearchBinding
         get() = _binding!!
+
+    @Inject
+    lateinit var mainViewModelFactory: MainViewModelFactory
+    private val searchViewModel: SearchViewModel by viewModels { mainViewModelFactory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,33 +38,68 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val cardDTO = CardDTO(
-            number = NumberCardDTO(16, true),
-            scheme = "visa",
-            type = "debit",
-            brand = "Visa/Dankort",
-            prepaid = false,
-            country = CountryCardDTO(
-                name = "Denmark",
-                latitude = 56868686L,
-                longitude = 108686988986L
-            ),
-            bank = BankDTO(
-                name = "Jyske Bank",
-                url = "www.jyskebank.dk",
-                phone = "+4589893300",
-                city = "Hjørring"
-            )
-        )
 
+        findOutData()
+        trackStatusChanges()
+        clickButtonSearch()
+    }
+
+    private fun clickButtonSearch() {
         binding.buttonSearch.setOnClickListener {
-            binding.detailsInformation.setSchemeType(cardDTO.scheme)
-            binding.detailsInformation.setNumber(cardDTO.number)
-            binding.detailsInformation.setBrand(cardDTO.brand)
-            binding.detailsInformation.setCardType(cardDTO.type)
-            binding.detailsInformation.setPrepaid(cardDTO.prepaid)
-            binding.detailsInformation.setCountry(cardDTO.country)
-            binding.detailsInformation.setBankInformation(cardDTO.bank)
+            viewLifecycleOwner.lifecycleScope.launch {
+                val editText = binding.editText.text.toString().toLong()
+                searchViewModel.getData(editText)
+            }
+        }
+    }
+
+    private fun trackStatusChanges() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            searchViewModel.stateShow.observe(viewLifecycleOwner) { state ->
+                when (state) {
+                    StateType.Display -> {
+                        binding.progress.visibility = View.GONE
+                        binding.buttonSearch.isEnabled = true
+                        binding.detailsInformation.isVisible = true
+                    }
+
+                    is StateType.Hide -> {
+                        binding.progress.visibility = View.GONE
+                        binding.buttonSearch.isEnabled = true
+                        binding.detailsInformation.isVisible = false
+                        state.error?.let {
+                            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    StateType.Loading -> {
+                        binding.progress.visibility = View.VISIBLE
+                        binding.buttonSearch.isEnabled = false
+                    }
+                }
+            }
+        }
+    }
+
+    private fun findOutData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            searchViewModel.dataStateFlow.collect {
+                if (it != null) {
+                    showResult(it)
+                }
+            }
+        }
+    }
+
+    private fun showResult(cardDTO: CardDTO) {
+        with(binding.detailsInformation) {
+            setSchemeType(cardDTO.scheme)
+            setNumber(cardDTO.number)
+            setBrand(cardDTO.brand)
+            setCardType(cardDTO.type)
+            setPrepaid(cardDTO.prepaid)
+            setCountry(cardDTO.country)
+            setBankInformation(cardDTO.bank)
         }
     }
 }

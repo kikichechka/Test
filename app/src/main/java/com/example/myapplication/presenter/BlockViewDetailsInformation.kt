@@ -5,9 +5,9 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.myapplication.R
-import com.example.myapplication.data.BankDTO
-import com.example.myapplication.data.CountryCardDTO
-import com.example.myapplication.data.NumberCardDTO
+import com.example.myapplication.data.model.BankDTO
+import com.example.myapplication.data.model.CountryCardDTO
+import com.example.myapplication.data.model.NumberCardDTO
 import com.example.myapplication.databinding.BlockViewDetailsInformationBinding
 
 class BlockViewDetailsInformation(context: Context, attributeSet: AttributeSet? = null) :
@@ -20,62 +20,84 @@ class BlockViewDetailsInformation(context: Context, attributeSet: AttributeSet? 
     }
 
     @SuppressLint("SetTextI18n")
-    fun setSchemeType(scheme: String) {
-        binding.schemeType.text = scheme
+    fun setSchemeType(scheme: String?) {
+        scheme?.let {
+            binding.schemeType.text = it
+        }
     }
 
     @SuppressLint("SetTextI18n")
-    fun setNumber(numberCardDTO: NumberCardDTO) {
+    fun setNumber(numberCardDTO: NumberCardDTO?) {
         with(binding) {
-            cardLength.text = numberCardDTO.length.toString()
-            cardLuhn.text = when (numberCardDTO.luhn) {
-                true -> resources.getString(R.string.yes)
-                false -> resources.getString(R.string.no)
+            numberCardDTO?.let {
+                cardLength.text = it.length?.toString()
+                cardLuhn.text = when (it.luhn) {
+                    true -> resources.getString(R.string.yes)
+                    false -> resources.getString(R.string.no)
+                    null -> ""
+                }
             }
         }
     }
 
     @SuppressLint("SetTextI18n")
-    fun setBrand(brand: String) {
-        binding.cardBrand.text = brand
-
-    }
-
-    @SuppressLint("SetTextI18n")
-    fun setCardType(type: String) {
-        binding.cardType.text = type
-
-    }
-
-    @SuppressLint("SetTextI18n")
-    fun setPrepaid(prepaid: Boolean) {
-        when (prepaid) {
-            true -> {
-                binding.cardPrepaid.text = resources.getString(R.string.yes)
-            }
-
-            false -> {
-                binding.cardPrepaid.text = resources.getString(R.string.no)
-            }
+    fun setBrand(brand: String?) {
+        brand?.let {
+            binding.cardBrand.text = it
         }
     }
 
     @SuppressLint("SetTextI18n")
-    fun setCountry(country: CountryCardDTO) {
-        with(binding) {
-            cardCountry.text = country.name
-            cardCountryLatitude.text = country.latitude.toString()
-            cardCountryLongitude.text = country.longitude.toString()
+    fun setCardType(type: String?) {
+        type?.let {
+            binding.cardType.text = it
         }
     }
 
     @SuppressLint("SetTextI18n")
-    fun setBankInformation(bank: BankDTO) {
+    fun setPrepaid(prepaid: Boolean?) {
+        prepaid?.let {
+            binding.cardPrepaid.text = if (it) resources.getString(R.string.yes) else resources.getString(R.string.no)
+//            when (it) {
+//                true -> {
+//                    binding.cardPrepaid.text = resources.getString(R.string.yes)
+//                }
+//
+//                false -> {
+//                    binding.cardPrepaid.text = resources.getString(R.string.no)
+//                }
+//            }
+        }
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun setCountry(country: CountryCardDTO?) {
         with(binding) {
-            bankName.text = bank.name
-            bankCity.text = bank.city
-            bankUrl.text = bank.url
-            bankPhone.text = bank.phone
+            country?.let {
+                cardCountry.text = it.name
+                cardCountryLatitude.text = it.latitude.toString()
+                cardCountryLongitude.text = it.longitude.toString()
+            }
+//            cardCountry.text = country?.name
+//            cardCountryLatitude.text = country?.latitude.toString()
+//            cardCountryLongitude.text = country?.longitude.toString()
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun setBankInformation(bank: BankDTO?) {
+        with(binding) {
+            bank?.let {
+                bankName.text = it.name
+                bankCity.text = it.city
+                bankUrl.text = it.url
+                bankPhone.text = it.phone
+            }
+//            bankName.text = bank?.name
+//            bankCity.text = bank?.city
+//            bankUrl.text = bank?.url
+//            bankPhone.text = bank?.phone
         }
     }
 }
