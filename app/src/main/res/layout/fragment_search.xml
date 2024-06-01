@@ -17,6 +17,7 @@
             android:id="@+id/textField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:errorEnabled="true"
             android:hint="@string/edit_bin">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -32,6 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/margin_for_button_search"
+            android:enabled="false"
             android:text="@string/button_search" />
 
         <FrameLayout

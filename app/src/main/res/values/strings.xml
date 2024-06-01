@@ -20,4 +20,5 @@
     <string name="luhn_card">LUHN</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="input_error">Ошибка ввода</string>
 </resources>

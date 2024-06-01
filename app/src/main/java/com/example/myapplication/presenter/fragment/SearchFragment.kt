@@ -7,8 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.myapplication.R
 import com.example.myapplication.data.model.CardDTO
 import com.example.myapplication.databinding.FragmentSearchBinding
 import com.example.myapplication.entity.StateType
@@ -20,6 +22,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
+    private val regex = Regex("""^([0-9]{6,8})$""")
     private var _binding: FragmentSearchBinding? = null
     private val binding: FragmentSearchBinding
         get() = _binding!!
@@ -41,7 +44,21 @@ class SearchFragment : Fragment() {
 
         findOutData()
         clickButtonSearch()
+        trackStatusChanges()
+        doOnTextChanged()
+    }
 
+    private fun doOnTextChanged() {
+        binding.editText.doOnTextChanged { text, _, _, _ ->
+            if (!text!!.matches(regex)) {
+                binding.textField.isErrorEnabled = true
+                binding.textField.error = getString(R.string.input_error)
+                binding.buttonSearch.isEnabled = false
+            } else {
+                binding.textField.isErrorEnabled = false
+                binding.buttonSearch.isEnabled = true
+            }
+        }
     }
 
     private fun clickButtonSearch() {
@@ -49,7 +66,6 @@ class SearchFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 val editText = binding.editText.text.toString().toLong()
                 searchViewModel.getData(editText)
-                trackStatusChanges()
             }
         }
     }
