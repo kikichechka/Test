@@ -5,10 +5,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.navigation.findNavController
+import androidx.viewpager2.widget.ViewPager2
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityMainBinding
-import com.google.android.material.tabs.TabLayout
+import com.example.myapplication.presenter.adapter.ViewPagerAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -16,6 +17,9 @@ class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private val binding: ActivityMainBinding
         get() = _binding!!
+
+    private lateinit var adapter: ViewPagerAdapter
+    private lateinit var viewPager: ViewPager2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,24 +32,21 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        binding.activityTabLayout.addOnTabSelectedListener(object :
-            TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                when (tab?.position) {
-                    0 -> {
-                        findNavController(R.id.nav_host_fragment_container).navigate(R.id.action_historyFragment_to_searchFragment)
-                    }
+        adapter = ViewPagerAdapter(this.supportFragmentManager, lifecycle)
+        viewPager = binding.pager
+        viewPager.adapter = adapter
 
-                    1 -> {
-                        findNavController(R.id.nav_host_fragment_container).navigate(R.id.action_searchFragment_to_historyFragment)
-                    }
+        TabLayoutMediator(binding.activityTabLayout, viewPager) { tab, position ->
+            when (position) {
+                0 -> {
+                    tab.text = getString(R.string.search)
+                }
+
+                1 -> {
+                    tab.text = getString(R.string.list_history)
                 }
             }
-
-            override fun onTabUnselected(p0: TabLayout.Tab?) {}
-
-            override fun onTabReselected(p0: TabLayout.Tab?) {}
-        })
+        }.attach()
     }
 
     override fun onDestroy() {

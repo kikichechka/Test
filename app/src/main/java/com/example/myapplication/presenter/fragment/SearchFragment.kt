@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.data.model.CardDTO
 import com.example.myapplication.databinding.FragmentSearchBinding
 import com.example.myapplication.entity.StateType
-import com.example.myapplication.presenter.MainViewModelFactory
+import com.example.myapplication.presenter.viewmodel.MainViewModelFactory
 import com.example.myapplication.presenter.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -40,8 +40,8 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         findOutData()
-        trackStatusChanges()
         clickButtonSearch()
+
     }
 
     private fun clickButtonSearch() {
@@ -49,13 +49,14 @@ class SearchFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 val editText = binding.editText.text.toString().toLong()
                 searchViewModel.getData(editText)
+                trackStatusChanges()
             }
         }
     }
 
     private fun trackStatusChanges() {
         viewLifecycleOwner.lifecycleScope.launch {
-            searchViewModel.stateShow.observe(viewLifecycleOwner) { state ->
+            searchViewModel.stateShow.collect{ state ->
                 when (state) {
                     StateType.Display -> {
                         binding.progress.visibility = View.GONE

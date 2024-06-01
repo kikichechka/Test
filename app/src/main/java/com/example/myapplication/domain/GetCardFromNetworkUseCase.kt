@@ -1,5 +1,6 @@
 package com.example.myapplication.domain
 
+import android.database.sqlite.SQLiteConstraintException
 import com.example.myapplication.data.SaveRepository
 import com.example.myapplication.data.SearchRepository
 import com.example.myapplication.data.model.CardDTO
@@ -14,7 +15,15 @@ class GetCardFromNetworkUseCase @Inject constructor(
     suspend fun getAndSaveData(cardNumber: Long): Response<CardDTO> {
         val answer = searchRepository.getDataFromNetwork(cardNumber).awaitResponse()
         if (answer.isSuccessful) {
-            answer.body()?.let { saveRepository.saveData(it) }
+            answer.body()?.let {
+                it.id = cardNumber
+                try {
+                    saveRepository.saveData(it)
+                } catch (e: SQLiteConstraintException) {
+                    println(e.message)
+                }
+
+            }
         }
         return answer
     }

@@ -1,7 +1,5 @@
 package com.example.myapplication.presenter.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.myapplication.data.model.CardDTO
 import com.example.myapplication.domain.GetCardFromNetworkUseCase
@@ -16,24 +14,25 @@ class SearchViewModel @Inject constructor(
     private val _dataStateFlow = MutableStateFlow<CardDTO?>(null)
     val dataStateFlow = _dataStateFlow.asStateFlow()
 
-    private val _stateShow = MutableLiveData<StateType>(StateType.Hide(null))
-    val stateShow: LiveData<StateType> = _stateShow
+    private val _stateShow = MutableStateFlow<StateType>(StateType.Hide(null))
+    val stateShow = _stateShow.asStateFlow()
 
     suspend fun getData(cardNumber: Long) {
-        val response = getCardFromNetworkUseCase.getAndSaveData(cardNumber)
         _stateShow.value = StateType.Loading
-        when (response.code()) {
-            CODE_NOT_FOUND -> {
-                _stateShow.value = StateType.Hide(CARD_NOT_FOUND)
+        getCardFromNetworkUseCase.getAndSaveData(cardNumber).apply {
+            when (this.code()) {
+                CODE_NOT_FOUND -> {
+                    _stateShow.value = StateType.Hide(CARD_NOT_FOUND)
+                }
+                CODE_LIMIT -> {
+                    _stateShow.value = StateType.Hide(LIMIT_REQUEST)
+                }
+                CODE_OK -> {
+                    _dataStateFlow.value = this.body()
+                    _stateShow.value = StateType.Display
+                }
+                else -> _stateShow.value = StateType.Hide(UNKNOWN_ERROR)
             }
-            CODE_LIMIT -> {
-                _stateShow.value = StateType.Hide(LIMIT_REQUEST)
-            }
-            CODE_OK -> {
-                _dataStateFlow.value = response.body()
-                _stateShow.value = StateType.Display
-            }
-            else -> _stateShow.value = StateType.Hide(UNKNOWN_ERROR)
         }
     }
 

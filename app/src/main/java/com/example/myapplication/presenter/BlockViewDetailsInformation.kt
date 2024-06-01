@@ -3,7 +3,7 @@ package com.example.myapplication.presenter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.ScrollView
 import com.example.myapplication.R
 import com.example.myapplication.data.model.BankDTO
 import com.example.myapplication.data.model.CountryCardDTO
@@ -11,7 +11,7 @@ import com.example.myapplication.data.model.NumberCardDTO
 import com.example.myapplication.databinding.BlockViewDetailsInformationBinding
 
 class BlockViewDetailsInformation(context: Context, attributeSet: AttributeSet? = null) :
-    ConstraintLayout(context, attributeSet) {
+    ScrollView(context, attributeSet) {
     private var binding: BlockViewDetailsInformationBinding
 
     init {
@@ -58,17 +58,7 @@ class BlockViewDetailsInformation(context: Context, attributeSet: AttributeSet? 
     fun setPrepaid(prepaid: Boolean?) {
         prepaid?.let {
             binding.cardPrepaid.text = if (it) resources.getString(R.string.yes) else resources.getString(R.string.no)
-//            when (it) {
-//                true -> {
-//                    binding.cardPrepaid.text = resources.getString(R.string.yes)
-//                }
-//
-//                false -> {
-//                    binding.cardPrepaid.text = resources.getString(R.string.no)
-//                }
-//            }
         }
-
     }
 
     @SuppressLint("SetTextI18n")
@@ -79,9 +69,6 @@ class BlockViewDetailsInformation(context: Context, attributeSet: AttributeSet? 
                 cardCountryLatitude.text = it.latitude.toString()
                 cardCountryLongitude.text = it.longitude.toString()
             }
-//            cardCountry.text = country?.name
-//            cardCountryLatitude.text = country?.latitude.toString()
-//            cardCountryLongitude.text = country?.longitude.toString()
         }
     }
 
@@ -94,10 +81,6 @@ class BlockViewDetailsInformation(context: Context, attributeSet: AttributeSet? 
                 bankUrl.text = it.url
                 bankPhone.text = it.phone
             }
-//            bankName.text = bank?.name
-//            bankCity.text = bank?.city
-//            bankUrl.text = bank?.url
-//            bankPhone.text = bank?.phone
         }
     }
 }
